@@ -53,12 +53,12 @@
       }
       line.active{
         stroke-width: 1.5px ;
-        stroke: rgb(110, 59, 150) ;
+        stroke: rgba(78, 105, 255, 0.5) ;
 
       }
       line.active-visited{
         stroke-width: 1.5px ;
-        stroke: rgb(87, 28, 28) ;
+        stroke: rgba(78, 105, 255, 0.5)  ;
       }
       circle.active-ed{
         fill: none;
@@ -210,7 +210,13 @@
         margin: 0;
         padding: 15px;
       }
-      @media (max-width:640px){
+      .legend{
+        position: absolute;
+        left: 40%;
+        top: 15%;
+        width: 10%;
+      }
+      @media (max-width:639px){
         #graph1{
           width:100%; height:auto;
         }
@@ -247,6 +253,12 @@
           width: 60%;
           left: 20%;
         }
+        .legend{
+          position: absolute;
+          left: 40%;
+          top: 18%;
+          width: 20%;
+        }
       }
 
     </style>
@@ -260,11 +272,13 @@
     <div id="map" class="clearfloat" style="position:relative;">
       <button type="button" name="button" class="choose-button o3 selected" id="visit">出访城市</button>
       <button type="button" name="button" class="choose-button pm25" id="visited">受访城市</button>
+      <img src="legend.png" alt="" class="legend">
       <img src="nan_hai.svg" alt="" class="nanhai">
     </div>
     <div class="wrapper">
       <img src="logo.png" alt="" class="logo" style="margin-top:15px;">
       <div class="annotation-mobile">
+        <p>注：部分城市仅有学习或被学习的记录，而无对应城市的数据，因此无访问连线</p>
         <p>数据来源：
         <br>中国人民大学国家发展与战略研究院研究员马亮《中国城市之间的政策学习：网络、结构与特征》</p>
       </div>
@@ -301,13 +315,14 @@
 
     })
 
+
     // write js code here
     async function draw(){
       //常量
       const WIDTH = window.innerWidth < 640 ? window.innerWidth : 640;
       const HEIGHT = WIDTH-30;
       const r = d3.scaleThreshold().domain([1,3,5,10,20]).range([0.5,1.5,2,4,6,8]);
-      const fill = d3.scaleOrdinal().domain([1,2,3,4,5]).range(["rgba(78, 105, 255, 0.2)","rgba(32, 45, 117, 0.3)","rgba(65, 15, 77, 0.3)","rgba(64, 16, 16,0.3)","rgba(186, 48, 0,0.3)"])
+      const fill = d3.scaleOrdinal().domain([1,2,3,4,5]).range(["rgba(87, 87, 87, 0.2)","rgba(87, 87, 87, 0.3)","rgba(87, 87, 87, 0.3)","rgba(87, 87, 87, 0.3)","rgba(87, 87, 87, 0.3)"])
       const scatter = await d3.csv("visitinfo.csv", d=>{d.visit = +d.visit; d.visited=+d.visited; return d;});
       const route = await d3.csv("route.csv");
       const location = await d3.csv("location.csv", d=>{d.LATB =+ d.LATB; d.LNGB =+ d.LNGB; return d;})
@@ -346,6 +361,13 @@
             .attr("height", height)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      svg.append("circle")
+          .attr("cx", "60%")
+          .attr("cy", "8%")
+          .attr("r", "8")
+          .attr("fill", "none")
+          .attr("stroke", "black")
+          .style("stroke-width", "1px");
       var g_china = svg.append("g").attr("class","china"),
           g_route = svg.append("g").attr("class", "route"),
           g_scatter = svg.append("g").attr("class", "scatter"),
@@ -380,7 +402,7 @@
                     .attr("cx", function(d){ return projection([d.locationlng,d.locationlat])[0];} )
                     .attr("cy", function(d){ return projection([d.locationlng,d.locationlat])[1];} )
                     .attr("r", function(d){ return r(d.visit)})
-                    .attr("fill", "rgb(226, 180, 122)")
+                    .attr("fill", "#dbc359")
                     .style("opacity", "0.9")
                     .on("mouseover", mouseoverFunc)
                     .on("mousemove", mousemoveFunc)
@@ -393,7 +415,7 @@
                             .attr("cx", function(d){ return projection([d.locationlng,d.locationlat])[0];} )
                             .attr("cy", function(d){ return projection([d.locationlng,d.locationlat])[1];} )
                             .attr("r", function(d){ return r(d.visited)})
-                            .attr("fill", "rgb(226, 122, 122)")
+                            .attr("fill", "#d59999")
                             .style("opacity", "0.9")
                             .on("mouseover", mouseoverVisited)
                             .on("mousemove", mousemoveFunc)
@@ -417,7 +439,7 @@
             var classDistrict = className[0];
             var nodes = d3.selectAll("."+ classDistrict).nodes();
             var array = new Array();
-            for (var i = 0; i < nodes.length-3; i++) {
+            for (var i = 0; i < nodes.length-2; i++) {
               var a = nodes[i].classList[0];
               var b = nodes[i].classList[1];
               if (b === classDistrict) {
